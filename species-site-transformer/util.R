@@ -31,7 +31,7 @@ identifySiteColumn <- function(data, names = c("site", "sites", "sampling site")
 }
 
 
-if(TRUE) {
+if(FALSE) {
     data <- read.csv("data/Choi_2018_long_format.csv")
     filtered_data <- filterCounts(data, column_name = "Individuals")
     res <- identifySpeciesColumn(data)
