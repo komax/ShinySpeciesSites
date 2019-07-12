@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+source("util.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -57,6 +58,33 @@ ui <- fluidPage(
             
             # Horizontal line ----
             tags$hr(),
+            
+            selectInput("speciesSelector",
+                        h3("Specify which column corresponds to species"),
+                        choices = c("Species"),
+                        selected = 1),
+            
+            numericInput("speciesColumn", label = NULL, value = 100),
+            
+            fluidRow(column(12, h3("Specify which column corresponds to species"))),
+            
+            fluidRow(
+                    splitLayout(
+                        textInput("speciesColumn", "Column"),
+                        textInput("speciesColName", "Name")
+                    )
+            ),
+            
+            fluidRow(column(12, h3("Specify which column corresponds to sites"))),
+            
+            fluidRow(
+                splitLayout(
+                    textInput("siteColumn", "Column"),
+                    textInput("siteColName", "Name")
+                )
+            ),
+            
+            
             
             # Horizontal line ----
             tags$hr(),
