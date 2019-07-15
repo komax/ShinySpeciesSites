@@ -8,7 +8,7 @@ filterCounts <- function(data, column_name) {
 
 identifyColumn <- function(data, names) {
     column_names <- names(data)
-    for (i in seq_along(input)) {
+    for (i in seq_along(data)) {
         column_name <- column_names[i]
         if (tolower(column_name) %in% names) {
             print(tolower(column_name))
