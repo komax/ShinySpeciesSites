@@ -11,7 +11,6 @@ identifyColumn <- function(data, names) {
     for (i in seq_along(data)) {
         column_name <- column_names[i]
         if (tolower(column_name) %in% names) {
-            print(tolower(column_name))
             return(list(
                 index = i,
                 columnName = column_name
