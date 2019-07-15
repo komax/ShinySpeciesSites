@@ -121,20 +121,20 @@ server <- function(input, output) {
     
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
         
-        cat(values$previousClickSpecies, input$identifySpeciesColumn[1])
+        # Check if this item has been clicked
         if (values$previousClickSpecies + 1 == input$identifySpeciesColumn[1]) {
+            # Bookkeeping in this reactive value of how many clicks has been carried out.
             values$previousClickSpecies <- values$previousClickSpecies + 1
             computedColumn <- identifySpeciesColumn(speciesSiteInput())
             if (length(computedColumn)) {
-                cat("Found:", computedColumn$columnName)
+                # Return the column name if it can be computed.
                 return(computedColumn$columnName)
             }
         }
+        # Check if the column selector has been used.
         if (input$speciesColumn) {
             columns = names(speciesSiteInput())
-            
             column_name <- columns[input$speciesColumn]
-            print(column_name)
             return(column_name)
         }
     })
@@ -146,7 +146,10 @@ server <- function(input, output) {
     
     output$speciesColName <- renderText({
         result <- speciesColumn()
-        if (length(result) > 0) {
+        # Sanity check
+        if (length(result) == 0 || is.na(result)) {
+            return("")
+        } else { 
             return(result)
         }
     })
