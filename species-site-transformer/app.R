@@ -151,39 +151,6 @@ server <- function(input, output) {
         }
     })
     
-
-    
-    
-    # output$speciesColName <- renderText({
-    #     
-    #     
-    #     # print(detectedSpeciesColumn())
-    #     # # If action button got called, do this
-    #     # computedColumn <- detectedSpeciesColumn()
-    #     # if (length(computedColumn)) {
-    #     #     return(computedColumn$columnName)
-    #     # }
-    #     
-    #     # Otherwise, do use the selector.
-    #     columns = names(speciesSiteInput())
-    #     
-    #     column_name <- columns[input$speciesColumn]
-    #     
-    #     if(length(column_name) == 0) {
-    #         return("NA")
-    #     } else {
-    #         return(column_name)
-    #     }
-    # })
-    # 
-    # output$speciesColName <- renderText({
-    #     
-    #     computedColumn <- detectedSpeciesColumn()
-    #     if (length(computedColumn)) {
-    #         return(computedColumn$columnName)
-    #     }
-    # })
-    
     output$downloadData <- downloadHandler(
         filename = function() {
             input$file$name
