@@ -59,30 +59,30 @@ ui <- fluidPage(
             # Horizontal line ----
             tags$hr(),
             
-            selectInput("speciesSelector",
-                        h3("Specify which column corresponds to species"),
-                        choices = c("Species"),
-                        selected = 1),
-            
-            numericInput("speciesColumn", label = NULL, value = 100),
-            
             fluidRow(column(12, h3("Specify which column corresponds to species"))),
             
             fluidRow(
                     splitLayout(cellWidths = c("25%", "75%"),
-                        textInput("speciesColumn", "Column"),
-                        textInput("speciesColName", "Name")
+                        numericInput("speciesColumn", "Column", value = 0, min = 0, max = 100),
+                        h2(textOutput("speciesColName"))
                     )
             ),
+            
+            actionButton("identifySpeciesColumn", label = "Identify column"),
+            
+            # Horizontal line ----
+            tags$hr(),
             
             fluidRow(column(12, h3("Specify which column corresponds to sites"))),
             
             fluidRow(
                 splitLayout(cellWidths = c("25%", "75%"),
-                    textInput("siteColumn", "Column"),
+                    numericInput("siteColumn", "Column", value = 0, min = 0, max = 100),
                     textInput("siteColName", "Name")
                 )
             ),
+            
+            actionButton("Identify column", label = "identifySpeciesColumn"),
             
             
             
@@ -102,6 +102,9 @@ ui <- fluidPage(
 
 # Define server logic required to transform the input file.
 server <- function(input, output) {
+    values <- reactiveValues()
+    values$previousClickSpecies <- 0
+    
     speciesSiteInput <- reactive({
         req(input$file)
         
@@ -116,10 +119,70 @@ server <- function(input, output) {
             return(species_site_matrix)
         }})
     
+    speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
+        
+        cat(values$previousClickSpecies, input$identifySpeciesColumn[1])
+        if (values$previousClickSpecies + 1 == input$identifySpeciesColumn[1]) {
+            values$previousClickSpecies <- values$previousClickSpecies + 1
+            computedColumn <- identifySpeciesColumn(speciesSiteInput())
+            if (length(computedColumn)) {
+                cat("Found:", computedColumn$columnName)
+                return(computedColumn$columnName)
+            }
+        }
+        if (input$speciesColumn) {
+            columns = names(speciesSiteInput())
+            
+            column_name <- columns[input$speciesColumn]
+            print(column_name)
+            return(column_name)
+        }
+    })
+    
     
     output$tableContents <- renderTable({
         speciesSiteInput()
     })
+    
+    output$speciesColName <- renderText({
+        result <- speciesColumn()
+        if (length(result) > 0) {
+            return(result)
+        }
+    })
+    
+
+    
+    
+    # output$speciesColName <- renderText({
+    #     
+    #     
+    #     # print(detectedSpeciesColumn())
+    #     # # If action button got called, do this
+    #     # computedColumn <- detectedSpeciesColumn()
+    #     # if (length(computedColumn)) {
+    #     #     return(computedColumn$columnName)
+    #     # }
+    #     
+    #     # Otherwise, do use the selector.
+    #     columns = names(speciesSiteInput())
+    #     
+    #     column_name <- columns[input$speciesColumn]
+    #     
+    #     if(length(column_name) == 0) {
+    #         return("NA")
+    #     } else {
+    #         return(column_name)
+    #     }
+    # })
+    # 
+    # output$speciesColName <- renderText({
+    #     
+    #     computedColumn <- detectedSpeciesColumn()
+    #     if (length(computedColumn)) {
+    #         return(computedColumn$columnName)
+    #     }
+    # })
     
     output$downloadData <- downloadHandler(
         filename = function() {
