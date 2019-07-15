@@ -69,7 +69,7 @@ ui <- fluidPage(
             fluidRow(column(12, h3("Specify which column corresponds to species"))),
             
             fluidRow(
-                    splitLayout(
+                    splitLayout(cellWidths = c("25%", "75%"),
                         textInput("speciesColumn", "Column"),
                         textInput("speciesColName", "Name")
                     )
@@ -78,7 +78,7 @@ ui <- fluidPage(
             fluidRow(column(12, h3("Specify which column corresponds to sites"))),
             
             fluidRow(
-                splitLayout(
+                splitLayout(cellWidths = c("25%", "75%"),
                     textInput("siteColumn", "Column"),
                     textInput("siteColName", "Name")
                 )
