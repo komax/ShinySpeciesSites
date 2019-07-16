@@ -29,6 +29,10 @@ identifySiteColumn <- function(data, names = c("site", "sites", "sampling site")
     identifyColumn(data, names)
 }
 
+identifyAbundancesColumn <- function(data, names = c("individuals", "individual", "count", "frequency", "abundance", "abundances")) {
+    identifyColumn(data, names)
+}
+
 
 if(FALSE) {
     data <- read.csv("data/Choi_2018_long_format.csv")
@@ -37,4 +41,5 @@ if(FALSE) {
     print(res[1])
     length(res)
     print(identifySiteColumn(data))
+    print(identifyAbundancesColumn(data))
 }
