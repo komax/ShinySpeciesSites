@@ -89,7 +89,9 @@ ui <- fluidPage(
 
             # Horizontal line ----
             tags$hr(),
-            
+            # Input: Checkbox if  has header ----
+            checkboxInput("filterIndividuals", "Filter individuals", TRUE),
+            actionButton(inputId = "showOutput", label = "Generate species-site matrix", icon = icon("table")),
             
             # Horizontal line ----
             tags$hr(),
@@ -129,6 +131,12 @@ server <- function(input, output) {
         } else {
             return(species.site.matrix)
         }})
+    
+    speciesSiteOutput <- reactive({
+        input.csv <- speciesSiteInput()
+        # FIXME implement this using longFormatToMatrix()
+        
+    })
 
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
         # Check if this item has been clicked
