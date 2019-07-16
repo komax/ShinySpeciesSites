@@ -1,5 +1,15 @@
 library(tidyverse)
 
+columnName <- function(df, column.index) {
+    columns = names(df)
+    column.name = columns[column.index]
+    # Sanity check and return empty string when not found.
+    if (length(column.name) == 0 || is.na(column.name)) {
+        return("")
+    } else {
+        return(column.name)
+    }
+}
 
 filterCounts <- function(data, column_name) {
     data %>%
@@ -42,4 +52,7 @@ if(FALSE) {
     length(res)
     print(identifySiteColumn(data))
     print(identifyAbundancesColumn(data))
+    print(columnName(data, 0))
+    print(columnName(data, 2))
+    print(columnName(data, 39750))
 }
