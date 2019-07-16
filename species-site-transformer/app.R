@@ -99,7 +99,6 @@ ui <- fluidPage(
             actionButton(inputId = "identifyAbundancesColumn", label = "Detect column", icon = icon("search")),
 
 
-
             # Horizontal line ----
             tags$hr(),
 
@@ -109,7 +108,8 @@ ui <- fluidPage(
 
         # Show the input table as well as the computed table.
         mainPanel(
-           tableOutput("tableContents")
+            h3(textOutput(outputId = "headingInputCSV")),
+            tableOutput("tableContents")
         )
     )
 )
@@ -123,11 +123,14 @@ server <- function(input, output) {
 
     speciesSiteInput <- reactive({
         req(input$file)
+        
+        csvFilename <- input$file$datapath
 
-        species.site.matrix <- read.csv(input$file$datapath,
+        species.site.matrix <- read.csv(csvFilename,
                                         header = input$header,
                                         sep = input$sep,
                                         quote = input$quote)
+        
 
         if(input$disp == "head") {
             return(head(species.site.matrix))
@@ -192,6 +195,11 @@ server <- function(input, output) {
         if (input$abundancesColumn) {
             return(columnName(speciesSiteInput(), input$abundancesColumn))
         }
+    })
+    
+    output$headingInputCSV <- renderText({
+        req(input$file)
+        paste("Input:", input$file$name)
     })
 
     
