@@ -1,5 +1,5 @@
 #
-# This is a Shiny web application. You can run the application by clicking
+# This is a Shiny web application to transform species x site matrices. You can run the application by clicking
 # the 'Run App' button above.
 #
 # Find out more about building applications with Shiny here:
@@ -10,13 +10,13 @@
 library(shiny)
 source("util.R")
 
-# Define UI for application that draws a histogram
+# Define UI for application that transforms a species-site matrix stored as a CSV.
 ui <- fluidPage(
 
     # Application title
     titlePanel("Transforming species x site matrices"),
 
-    # Sidebar with a slider input for number of bins 
+    # Sidebar with control widgets.
     sidebarLayout(
         sidebarPanel(
             # Upload CSV:
@@ -59,12 +59,12 @@ ui <- fluidPage(
             # Horizontal line ----
             tags$hr(),
 
-            fluidRow(column(12, h3("Specify which column corresponds to species"))),
+            fluidRow(column(12, h4("Specify which column corresponds to species"))),
 
             fluidRow(
                     splitLayout(cellWidths = c("25%", "75%"),
                         numericInput("speciesColumn", "Column", value = 0, min = 0, max = 100),
-                        h2(textOutput("speciesColName"))
+                        h3(textOutput("speciesColName"))
                     )
             ),
 
@@ -73,12 +73,12 @@ ui <- fluidPage(
             # Horizontal line ----
             tags$hr(),
 
-            fluidRow(column(12, h3("Specify which column corresponds to sites"))),
+            fluidRow(column(12, h4("Specify which column corresponds to sites"))),
 
             fluidRow(
                 splitLayout(cellWidths = c("25%", "75%"),
                     numericInput("sitesColumn", "Column", value = 0, min = 0, max = 100),
-                    h2(textOutput(outputId = "sitesColName"))
+                    h3(textOutput(outputId = "sitesColName"))
                 )
             ),
 
@@ -87,12 +87,12 @@ ui <- fluidPage(
             # Horizontal line ----
             tags$hr(),
 
-            fluidRow(column(12, h3("Specify which column corresponds to abundances"))),
+            fluidRow(column(12, h4("Specify which column corresponds to abundances"))),
 
             fluidRow(
                 splitLayout(cellWidths = c("25%", "75%"),
                             numericInput("abundancesColumn", "Column", value = 0, min = 0, max = 100),
-                            h2(textOutput(outputId = "abundancesColName"))
+                            h3(textOutput(outputId = "abundancesColName"))
                 )
             ),
 
@@ -107,7 +107,7 @@ ui <- fluidPage(
             downloadButton("downloadData", "Download")
         ),
 
-        # Show a plot of the generated distribution
+        # Show the input table as well as the computed table.
         mainPanel(
            tableOutput("tableContents")
         )
@@ -119,19 +119,20 @@ server <- function(input, output) {
     values <- reactiveValues()
     values$previousClickSpecies <- 0
     values$previousClickSites <- 0
+    values$previousClickAbundances <- 0
 
     speciesSiteInput <- reactive({
         req(input$file)
 
-        species_site_matrix <- read.csv(input$file$datapath,
+        species.site.matrix <- read.csv(input$file$datapath,
                                         header = input$header,
                                         sep = input$sep,
                                         quote = input$quote)
 
         if(input$disp == "head") {
-            return(head(species_site_matrix))
+            return(head(species.site.matrix))
         } else {
-            return(species_site_matrix)
+            return(species.site.matrix)
         }})
 
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
@@ -143,13 +144,13 @@ server <- function(input, output) {
             if (length(computedColumn)) {
                 # Return the column name if it can be computed.
                 return(computedColumn$columnName)
+            } else {
+                return("")
             }
         }
         # Check if the column selector has been used.
         if (input$speciesColumn) {
-            columns = names(speciesSiteInput())
-            column_name <- columns[input$speciesColumn]
-            return(column_name)
+            return(columnName(speciesSiteInput(), input$speciesColumn))
         }
     })
 
@@ -162,13 +163,34 @@ server <- function(input, output) {
             if (length(computedColumn)) {
                 # Return the column name if it can be computed.
                 return(computedColumn$columnName)
+            } else {
+                return("")
             }
         }
+        
         # Check if the column selector has been used.
         if (input$sitesColumn) {
-            columns = names(speciesSiteInput())
-            column_name <- columns[input$sitesColumn]
-            return(column_name)
+            return(columnName(speciesSiteInput(), input$sitesColumn))
+        }
+    })
+    
+    abundancesColumn <- eventReactive(input$abundancesColumn | input$identifyAbundancesColumn, {
+        # Check if this item has been clicked
+        if (values$previousClickAbundances + 1 == input$identifyAbundancesColumn[1]) {
+            # Bookkeeping in this reactive value of how many clicks has been carried out.
+            values$previousClickAbundances <- values$previousClickAbundances + 1
+            computedColumn <- identifyAbundancesColumn(speciesSiteInput())
+            if (length(computedColumn)) {
+                # Return the column name if it can be computed.
+                return(computedColumn$columnName)
+            } else {
+                return("")
+            }
+        }
+        
+        # Check if the column selector has been used.
+        if (input$abundancesColumn) {
+            return(columnName(speciesSiteInput(), input$abundancesColumn))
         }
     })
 
@@ -178,23 +200,15 @@ server <- function(input, output) {
     })
     
     output$speciesColName <- renderText({
-        result <- speciesColumn()
-        # Sanity check
-        if (length(result) == 0 || is.na(result)) {
-            return("")
-        } else {
-            return(result)
-        }
+        speciesColumn()
     })
 
     output$sitesColName <- renderText({
-        result <- sitesColumn()
-        # Sanity check
-        if (length(result) == 0 || is.na(result)) {
-            return("")
-        } else {
-            return(result)
-        }
+        sitesColumn()
+    })
+    
+    output$abundancesColName <- renderText({
+        abundancesColumn()
     })
     
     output$downloadData <- downloadHandler(
