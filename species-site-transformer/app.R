@@ -59,46 +59,38 @@ ui <- fluidPage(
             # Horizontal line ----
             tags$hr(),
 
-            fluidRow(column(12, h4("Specify which column corresponds to species"))),
-
-            fluidRow(
-                    splitLayout(cellWidths = c("25%", "75%"),
+            h4("Specify which column corresponds to species"),
+            splitLayout(cellWidths = c("25%", "75%"),
                         numericInput("speciesColumn", "Column", value = 0, min = 0, max = 100),
                         h3(textOutput("speciesColName"))
-                    )
             ),
-
             actionButton("identifySpeciesColumn", label = "Detect column", icon = icon("search")),
 
             # Horizontal line ----
             tags$hr(),
+            h4("Specify which column corresponds to sites"),
 
-            fluidRow(column(12, h4("Specify which column corresponds to sites"))),
-
-            fluidRow(
-                splitLayout(cellWidths = c("25%", "75%"),
-                    numericInput("sitesColumn", "Column", value = 0, min = 0, max = 100),
-                    h3(textOutput(outputId = "sitesColName"))
-                )
+            splitLayout(cellWidths = c("25%", "75%"),
+                        numericInput("sitesColumn", "Column", value = 0, min = 0, max = 100),
+                        h3(textOutput(outputId = "sitesColName"))
             ),
-
             actionButton(inputId = "identifySitesColumn", label = "Detect column", icon = icon("search")),
 
             # Horizontal line ----
             tags$hr(),
 
-            fluidRow(column(12, h4("Specify which column corresponds to abundances"))),
-
-            fluidRow(
-                splitLayout(cellWidths = c("25%", "75%"),
-                            numericInput("abundancesColumn", "Column", value = 0, min = 0, max = 100),
-                            h3(textOutput(outputId = "abundancesColName"))
-                )
+            h4("Specify which column corresponds to abundances"),
+            splitLayout(cellWidths = c("25%", "75%"),
+                        numericInput("abundancesColumn", "Column", value = 0, min = 0, max = 100),
+                        h3(textOutput(outputId = "abundancesColName"))
             ),
-
             actionButton(inputId = "identifyAbundancesColumn", label = "Detect column", icon = icon("search")),
 
 
+            # Horizontal line ----
+            tags$hr(),
+            
+            
             # Horizontal line ----
             tags$hr(),
 
