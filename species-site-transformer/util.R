@@ -29,7 +29,7 @@ identifySiteColumn <- function(data, names = c("site", "sites", "sampling site")
     identifyColumn(data, names)
 }
 
-identifyAbundancesColumn <- function(data, names = c("individuals", "individual", "count", "frequency", "abundance", "abundances")) {
+identifyAbundancesColumn <- function(data, names = c("abundance", "abundances", "individuals", "individual", "count", "frequency")) {
     identifyColumn(data, names)
 }
 
