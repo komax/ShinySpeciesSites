@@ -77,12 +77,12 @@ ui <- fluidPage(
             
             fluidRow(
                 splitLayout(cellWidths = c("25%", "75%"),
-                    numericInput("siteColumn", "Column", value = 0, min = 0, max = 100),
-                    textInput("siteColName", "Name")
+                    numericInput("sitesColumn", "Column", value = 0, min = 0, max = 100),
+                    h2(textOutput(outputId = "sitesColName"))
                 )
             ),
             
-            actionButton("Identify column", label = "identifySpeciesColumn"),
+            actionButton(inputId = "identifySitesColumn", label = "Identify column"),
             
             
             
@@ -104,6 +104,7 @@ ui <- fluidPage(
 server <- function(input, output) {
     values <- reactiveValues()
     values$previousClickSpecies <- 0
+    values$previousClickSites <- 0
     
     speciesSiteInput <- reactive({
         req(input$file)
@@ -120,7 +121,6 @@ server <- function(input, output) {
         }})
     
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
-        
         # Check if this item has been clicked
         if (values$previousClickSpecies + 1 == input$identifySpeciesColumn[1]) {
             # Bookkeeping in this reactive value of how many clicks has been carried out.
@@ -139,6 +139,25 @@ server <- function(input, output) {
         }
     })
     
+    sitesColumn <- eventReactive(input$sitesColumn | input$identifySitesColumn, {
+        # Check if this item has been clicked
+        if (values$previousClickSites + 1 == input$identifySitesColumn[1]) {
+            # Bookkeeping in this reactive value of how many clicks has been carried out.
+            values$previousClickSites <- values$previousClickSites + 1
+            computedColumn <- identifySiteColumn(speciesSiteInput())
+            if (length(computedColumn)) {
+                # Return the column name if it can be computed.
+                return(computedColumn$columnName)
+            }
+        }
+        # Check if the column selector has been used.
+        if (input$sitesColumn) {
+            columns = names(speciesSiteInput())
+            column_name <- columns[input$sitesColumn]
+            return(column_name)
+        }
+    })
+    
     
     output$tableContents <- renderTable({
         speciesSiteInput()
@@ -146,6 +165,17 @@ server <- function(input, output) {
     
     output$speciesColName <- renderText({
         result <- speciesColumn()
+        # Sanity check
+        if (length(result) == 0 || is.na(result)) {
+            return("")
+        } else { 
+            return(result)
+        }
+    })
+    
+    output$sitesColName <- renderText({
+        result <- sitesColumn()
+        print(result)
         # Sanity check
         if (length(result) == 0 || is.na(result)) {
             return("")
