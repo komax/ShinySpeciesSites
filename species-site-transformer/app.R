@@ -58,38 +58,52 @@ ui <- fluidPage(
             
             # Horizontal line ----
             tags$hr(),
-            
+
             fluidRow(column(12, h3("Specify which column corresponds to species"))),
-            
+
             fluidRow(
                     splitLayout(cellWidths = c("25%", "75%"),
                         numericInput("speciesColumn", "Column", value = 0, min = 0, max = 100),
                         h2(textOutput("speciesColName"))
                     )
             ),
-            
-            actionButton("identifySpeciesColumn", label = "Identify column"),
-            
+
+            actionButton("identifySpeciesColumn", label = "Detect column", icon = icon("search")),
+
             # Horizontal line ----
             tags$hr(),
-            
+
             fluidRow(column(12, h3("Specify which column corresponds to sites"))),
-            
+
             fluidRow(
                 splitLayout(cellWidths = c("25%", "75%"),
                     numericInput("sitesColumn", "Column", value = 0, min = 0, max = 100),
                     h2(textOutput(outputId = "sitesColName"))
                 )
             ),
-            
-            actionButton(inputId = "identifySitesColumn", label = "Identify column"),
-            
-            
-            
+
+            actionButton(inputId = "identifySitesColumn", label = "Detect column", icon = icon("search")),
+
             # Horizontal line ----
             tags$hr(),
-            
-            # Button
+
+            fluidRow(column(12, h3("Specify which column corresponds to abundances"))),
+
+            fluidRow(
+                splitLayout(cellWidths = c("25%", "75%"),
+                            numericInput("abundancesColumn", "Column", value = 0, min = 0, max = 100),
+                            h2(textOutput(outputId = "abundancesColName"))
+                )
+            ),
+
+            actionButton(inputId = "identifyAbundancesColumn", label = "Detect column", icon = icon("search")),
+
+
+
+            # Horizontal line ----
+            tags$hr(),
+
+            # Download Button
             downloadButton("downloadData", "Download")
         ),
 
@@ -105,21 +119,21 @@ server <- function(input, output) {
     values <- reactiveValues()
     values$previousClickSpecies <- 0
     values$previousClickSites <- 0
-    
+
     speciesSiteInput <- reactive({
         req(input$file)
-        
-        species_site_matrix <- read.csv(input$file$datapath, 
+
+        species_site_matrix <- read.csv(input$file$datapath,
                                         header = input$header,
                                         sep = input$sep,
                                         quote = input$quote)
-                                 
+
         if(input$disp == "head") {
             return(head(species_site_matrix))
         } else {
             return(species_site_matrix)
         }})
-    
+
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
         # Check if this item has been clicked
         if (values$previousClickSpecies + 1 == input$identifySpeciesColumn[1]) {
@@ -138,7 +152,7 @@ server <- function(input, output) {
             return(column_name)
         }
     })
-    
+
     sitesColumn <- eventReactive(input$sitesColumn | input$identifySitesColumn, {
         # Check if this item has been clicked
         if (values$previousClickSites + 1 == input$identifySitesColumn[1]) {
@@ -157,7 +171,7 @@ server <- function(input, output) {
             return(column_name)
         }
     })
-    
+
     
     output$tableContents <- renderTable({
         speciesSiteInput()
@@ -168,18 +182,17 @@ server <- function(input, output) {
         # Sanity check
         if (length(result) == 0 || is.na(result)) {
             return("")
-        } else { 
+        } else {
             return(result)
         }
     })
-    
+
     output$sitesColName <- renderText({
         result <- sitesColumn()
-        print(result)
         # Sanity check
         if (length(result) == 0 || is.na(result)) {
             return("")
-        } else { 
+        } else {
             return(result)
         }
     })
