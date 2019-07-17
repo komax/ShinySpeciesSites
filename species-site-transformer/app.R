@@ -103,7 +103,9 @@ ui <- fluidPage(
         # Show the input table as well as the computed table.
         mainPanel(
             h3(textOutput(outputId = "headingInputCSV")),
-            tableOutput("tableContents")
+            tableOutput("tableContents"),
+            h3(textOutput(outputId = "headingTableShortFormat")),
+            tableOutput("tableShortFormat")
         )
     )
 )
@@ -133,8 +135,12 @@ server <- function(input, output) {
         }})
     
     speciesSiteOutput <- reactive({
+        # FIXME use actual values from the UI.
+        
+        #print(input$showOutput)
+        input$showOutput
         input.csv <- speciesSiteInput()
-        # FIXME implement this using longFormatToMatrix()
+        toSpeciesSiteMatrix(input.csv, speciesCol = "Species", sitesCol = "Site", abundancesCol = "Individuals", filterNonAbundantSpecies = TRUE)
         
     })
 
@@ -205,6 +211,14 @@ server <- function(input, output) {
     
     output$tableContents <- renderTable({
         speciesSiteInput()
+    })
+    
+    output$headingTableShortFormat <- renderText({
+        ""
+    })
+    
+    output$tableShortFormat <- renderTable({
+        speciesSiteOutput()
     })
     
     output$speciesColName <- renderText({
