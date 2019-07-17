@@ -130,19 +130,12 @@ server <- function(input, output) {
 
         if(input$disp == "head") {
             return(head(species.site.matrix))
+            # FIXME Add a possiblity to adjust how many rows to show.
         } else {
             return(species.site.matrix)
         }})
     
-    speciesSiteOutput <- reactive({
-        # FIXME use actual values from the UI.
-        
-        #print(input$showOutput)
-        input$showOutput
-        input.csv <- speciesSiteInput()
-        toSpeciesSiteMatrix(input.csv, speciesCol = "Species", sitesCol = "Site", abundancesCol = "Individuals", filterNonAbundantSpecies = TRUE)
-        
-    })
+
 
     speciesColumn <- eventReactive(input$speciesColumn | input$identifySpeciesColumn, {
         # Check if this item has been clicked
@@ -236,11 +229,36 @@ server <- function(input, output) {
     output$downloadData <- downloadHandler(
         filename = function() {
             input$file$name
-        },
+        }, 
         content = function(file) {
-            write.csv(speciesSiteInput(), file, row.names = FALSE)
+            outputData <- speciesSiteOutput()
+            # FIXME Validate whether we obtained a matrix or not.
+            write.csv(outputData, file, row.names = FALSE)
         }
     )
+    
+    speciesSiteOutput <- eventReactive(input$showOutput, {
+        # Request values for these columns in the UI.
+        sp.col <- speciesColumn()
+        sites.col <- sitesColumn()
+        abund.col <- abundancesColumn()
+        
+        # Validate the the column names.
+        # If they don't provide correct values, output error message in the main panel.
+        validate(
+            need(!is.null(sp.col) && nchar(sp.col) > 0, "A column needs to be specified for species"),
+            need(!is.null(sites.col) && nchar(sites.col) > 0, "A column needs to be specified for sites"),
+            need(!is.null(abund.col) && nchar(abund.col) > 0, "A column needs to be specified for abundances")
+        )
+        
+        
+        input.data <- speciesSiteInput()
+        # cat(speciesColumn(), sitesColumn(), abundancesColumn())
+        
+        toSpeciesSiteMatrix(input.data, speciesCol = sp.col,
+                            sitesCol = sites.col, abundancesCol = abund.col, 
+                            filterNonAbundantSpecies = input$filterIndividuals)
+    })
     
     
 }
