@@ -1,2 +1,2 @@
-# long-format-shiny
-Shiny app to transform a short format dataframe into a long format
+# SpecSiTransformer-shiny
+Shiny app to transform a dataframe for species and sites in long format in a species x site matrix.
