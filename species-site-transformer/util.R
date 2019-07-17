@@ -16,17 +16,26 @@ filterCounts <- function(data, column_name) {
         filter(.data[[column_name]] > 0)
 }
 
-longFormatToMatrix <- function(data, speciesCol, sitesCol, abundancesCol, filter = FALSE) {
-    inputData <- data
-    if (filter) {
-        inputData <- data %>%
+toSpeciesSiteMatrix <- function(longFormatData, speciesCol, sitesCol, abundancesCol, filterNonAbundantSpecies = FALSE, colNameAbundancePerSpecies = "Count") {
+    # Ensure that the columns are characters.
+    stopifnot(is.character(speciesCol),
+              is.character(sitesCol),
+              is.character(abundancesCol))
+    
+    
+    # Filter non abundant species.
+    inputData <- longFormatData
+    if (filterNonAbundantSpecies) {
+        inputData <- longFormatData %>%
             filterCounts(abundancesCol)
     }
+    # Transform long format into species x site matrix
     outputData <-
         inputData %>%
-        group_by(Site, Species) %>%
-        summarise(Count = sum(Individuals)) %>%
-        spread(key = "Species", value = "Count", fill = 0)
+        group_by(.data[[sitesCol]], .data[[speciesCol]]) %>%
+        # Introduce a new column with the abundance per species.
+        summarise(colNameAbundancePerSpecies = sum(.data[[abundancesCol]])) %>%
+        spread(key = speciesCol, value = colNameAbundancePerSpecies, fill = 0)
     return(outputData)
 }
 
@@ -58,7 +67,7 @@ identifyAbundancesColumn <- function(data, names = c("abundance", "abundances", 
 }
 
 
-if(TRUE) {
+if(FALSE) {
     data <- read.csv("data/Choi_2018_long_format.csv")
     filtered_data <- filterCounts(data, column_name = "Individuals")
     res <- identifySpeciesColumn(data)
@@ -69,4 +78,5 @@ if(TRUE) {
     print(columnName(data, 0))
     print(columnName(data, 2))
     print(columnName(data, 39750))
+    speciesSiteMatrix <- toSpeciesSiteMatrix(data, speciesCol = "Species", sitesCol = "Site", abundancesCol = "Individuals", filterNonAbundantSpecies = FALSE)
 }
