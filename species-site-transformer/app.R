@@ -207,7 +207,13 @@ server <- function(input, output) {
     })
     
     output$headingTableShortFormat <- renderText({
-        ""
+        # If we have generated an output
+        if (is.data.frame(speciesSiteOutput())) {
+            # then prepend a heading.
+            return("Output as species x site matrix:")
+        } else {
+            return("No output possible")
+        }
     })
     
     output$tableShortFormat <- renderTable({
@@ -237,14 +243,7 @@ server <- function(input, output) {
         }
     )
     
-    speciesSiteOutput <- eventReactive(input$showOutput | input$file, {
-        print(input$file)
-        print(input$showOutput)
-        
-        if (input$file & is.null(input$showOutput)) {
-            print("don't do anything")
-        }
-        
+    speciesSiteOutput <- eventReactive(input$showOutput, {
         # Request values for these columns in the UI.
         sp.col <- speciesColumn()
         sites.col <- sitesColumn()
