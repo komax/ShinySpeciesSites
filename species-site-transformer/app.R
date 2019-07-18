@@ -129,8 +129,8 @@ server <- function(input, output) {
         
 
         if(input$disp == "head") {
-            return(head(species.site.matrix))
-            # FIXME Add a possiblity to adjust how many rows to show.
+            numRows <- 12
+            return(head(species.site.matrix, n = numRows))
         } else {
             return(species.site.matrix)
         }})
@@ -237,7 +237,14 @@ server <- function(input, output) {
         }
     )
     
-    speciesSiteOutput <- eventReactive(input$showOutput, {
+    speciesSiteOutput <- eventReactive(input$showOutput | input$file, {
+        print(input$file)
+        print(input$showOutput)
+        
+        if (input$file & is.null(input$showOutput)) {
+            print("don't do anything")
+        }
+        
         # Request values for these columns in the UI.
         sp.col <- speciesColumn()
         sites.col <- sitesColumn()
@@ -252,6 +259,7 @@ server <- function(input, output) {
         )
         
         
+        # Request the input.
         input.data <- speciesSiteInput()
         # cat(speciesColumn(), sitesColumn(), abundancesColumn())
         
